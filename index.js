@@ -79,11 +79,11 @@ function getNewToken(oAuth2Client, callback) {
 async function listMajors(auth) {
   //modify this method to write to my own sheet
 
-  let range = 'Calc!D50'
-  // let values = scrape();
-  let values = [
-    [6.66, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55],
-  ];
+  let range = 'Calc!D5'
+  let values = await scrape();
+  // let values = [
+  //   [6.66, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55],
+  // ];
   let resource = {
     values,
   };
@@ -99,9 +99,8 @@ async function listMajors(auth) {
   const sheets = google.sheets({version: 'v4', auth});
 
   try {
-    // const response = (await sheets.spreadsheets.values.update(request)).data;
     const response = await sheets.spreadsheets.values.update(request).data;
-    console.log('wrote stuff');
+    console.log('wrote stuff', JSON.stringify(response, null, 2));
   } catch (error) {
     console.error(error);
   }

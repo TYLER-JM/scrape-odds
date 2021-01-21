@@ -7,10 +7,10 @@ const convertOdds = (americanOdds) => {
   if (!!Number(americanOdds)) {
     if (Number(americanOdds) > 0) {
       let converted = (Number(americanOdds) / 100) + 1;
-      return converted.toFixed(2);
+      return Number(converted.toFixed(2));
     } else {
       let converted = (100 / Math.abs(Number(americanOdds))) + 1;
-      return converted.toFixed(2);
+      return Number(converted.toFixed(2));
     }
   }
 };
@@ -20,23 +20,20 @@ module.exports = async function() {
   let dom = await new JSDOM(response.data);
   let oddsRows = dom.window.document.getElementsByClassName('op-item-row-wrapper not-futures');
 
-  let results = [];
+  let results = [[],[]];
   for (row of oddsRows[0].childNodes) {
     let visitorOdds = row.firstChild.lastChild.textContent;
     let homeOdds = row.lastChild.lastChild.textContent;
-    results.push({
-      visAmericanOdd: visitorOdds, homeAmericanOdds: homeOdds,
-      visDecimalOdds: convertOdds(visitorOdds), homeDecimalOdds: convertOdds(homeOdds)
-    });
+    results[0].push(convertOdds(homeOdds));
+    results[1].push(convertOdds(visitorOdds));
+    // results.push({
+    //   visAmericanOdd: visitorOdds, homeAmericanOdds: homeOdds,
+    //   visDecimalOdds: convertOdds(visitorOdds), homeDecimalOdds: convertOdds(homeOdds)
+    // });
   }
-  // return an appropriate array of arrays instead of console logging
-  console.log('array of odds: ', results);
 
-  /* 
-    send google sheets an array of arrays:
-    [[1.91, 1.91, 1.94, etc....], [1.91, 1.91, 1.87, etc....]]
-    which would translate to writing into two rows
-  */
+  console.log('array of odds: ', results);
+  return results;
 }
 
 // scrape();
