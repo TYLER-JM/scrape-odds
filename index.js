@@ -1,14 +1,18 @@
 const fs = require('fs');
 const readline = require('readline');
 const {google} = require('googleapis');
+const scrape = require('./src/scrape');
+const spreadsheetId = require('./src/private/private');
 
 
 // If modifying these scopes, delete token.json.
-const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
+// const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
+const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
 // time.
 const TOKEN_PATH = 'token.json';
+
 
 // Load client secrets from a local file.
 fs.readFile('credentials.json', (err, content) => {
@@ -72,22 +76,49 @@ function getNewToken(oAuth2Client, callback) {
  * @see https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
  * @param {google.auth.OAuth2} auth The authenticated Google OAuth client.
  */
-function listMajors(auth) {
+async function listMajors(auth) {
+  //modify this method to write to my own sheet
+
+  let range = 'Calc!D50'
+  // let values = scrape();
+  let values = [
+    [6.66, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55],
+  ];
+  let resource = {
+    values,
+  };
+  let valueInputOption = 'RAW';
+
+  let request = {
+    spreadsheetId,
+    range,
+    valueInputOption,
+    resource,
+  }
+
   const sheets = google.sheets({version: 'v4', auth});
-  sheets.spreadsheets.values.get({
-    spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
-    range: 'Class Data!A2:E',
-  }, (err, res) => {
-    if (err) return console.log('The API returned an error: ' + err);
-    const rows = res.data.values;
-    if (rows.length) {
-      console.log('Name, Major:');
-      // Print columns A and E, which correspond to indices 0 and 4.
-      rows.map((row) => {
-        console.log(`${row[0]}, ${row[4]}`);
-      });
-    } else {
-      console.log('No data found.');
-    }
-  });
+
+  try {
+    // const response = (await sheets.spreadsheets.values.update(request)).data;
+    const response = await sheets.spreadsheets.values.update(request).data;
+    console.log('wrote stuff');
+  } catch (error) {
+    console.error(error);
+  }
+  // sheets.spreadsheets.values.get({
+  //   spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
+  //   range: 'Class Data!A2:E',
+  // }, (err, res) => {
+  //   if (err) return console.log('The API returned an error: ' + err);
+  //   const rows = res.data.values;
+  //   if (rows.length) {
+  //     console.log('Name, Major:');
+  //     // Print columns A and E, which correspond to indices 0 and 4.
+  //     rows.map((row) => {
+  //       console.log(`${row[0]}, ${row[4]}`);
+  //     });
+  //   } else {
+  //     console.log('No data found.');
+  //   }
+  // });
 }
