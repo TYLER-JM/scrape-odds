@@ -34,7 +34,6 @@ module.exports = async function(league, event) {
   results[0].shift()
   results[1].shift()
 
-  console.log('array of odds: ', results);
   return results;
 }
 
