@@ -3,10 +3,17 @@ const readline = require('readline');
 const {google} = require('googleapis');
 const scrape = require('./src/scrape');
 const spreadsheetId = require('./src/private/private');
+const args = process.argv.splice(2);
+
+const league = args[0];
+const event = Number(args[1]);
+if (isNaN(event) || event <= 0) {
+  throw 'please specify which Event you would like with a number';
+}
+console.log(`selections: ${league}, ${event}`);
 
 
 // If modifying these scopes, delete token.json.
-// const SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly'];
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 // The file token.json stores the user's access and refresh tokens, and is
 // created automatically when the authorization flow completes for the first
@@ -79,10 +86,12 @@ function getNewToken(oAuth2Client, callback) {
 async function listMajors(auth) {
   //modify this method to write to my own sheet
 
-  let range = 'Calc!D5'
-  let values = await scrape();
+  // let range = 'Calc!D5:Q5'
+  let range = 'Calc!D51'
+  let values = await scrape(league, event).catch((e) => {console.log(e.message)});
   // let values = [
-  //   [6.66, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55],
+  //   [1.66, 1.55, 1.55, 1.55, 1.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55, 6.55],
+  //   [1.11, 1.11, 1.11, 1.11, 1.11, 1.11, 1.11, 1.11, 1.11, 1.11, 1.11, 1.11, 1.11, 1.11],
   // ];
   let resource = {
     values,
@@ -99,11 +108,14 @@ async function listMajors(auth) {
   const sheets = google.sheets({version: 'v4', auth});
 
   try {
-    const response = await sheets.spreadsheets.values.update(request).data;
-    console.log('wrote stuff', JSON.stringify(response, null, 2));
+    // const response = await sheets.spreadsheets.values.update(request).data;
+    // const response = await sheets.spreadsheets.values.update(request);
+    await sheets.spreadsheets.values.update(request);
+    // console.log('wrote stuff', JSON.stringify(response, null, 2));
   } catch (error) {
     console.error(error);
   }
+  console.log('okay');
   // sheets.spreadsheets.values.get({
   //   spreadsheetId: '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms',
   //   range: 'Class Data!A2:E',

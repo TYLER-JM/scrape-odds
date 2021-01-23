@@ -15,25 +15,27 @@ const convertOdds = (americanOdds) => {
   }
 };
 
-module.exports = async function() {
-  let response = await axios.get('https://www.oddsshark.com/nba/odds');
+module.exports = async function(league, event) {
+// async function scrape() {
+  let response = await axios.get(`https://www.oddsshark.com/${league}/odds`);
+
   let dom = await new JSDOM(response.data);
   let oddsRows = dom.window.document.getElementsByClassName('op-item-row-wrapper not-futures');
 
   let results = [[],[]];
-  for (row of oddsRows[0].childNodes) {
+  for (row of oddsRows[event-1].childNodes) {
     let visitorOdds = row.firstChild.lastChild.textContent;
     let homeOdds = row.lastChild.lastChild.textContent;
-    results[0].push(convertOdds(homeOdds));
-    results[1].push(convertOdds(visitorOdds));
-    // results.push({
-    //   visAmericanOdd: visitorOdds, homeAmericanOdds: homeOdds,
-    //   visDecimalOdds: convertOdds(visitorOdds), homeDecimalOdds: convertOdds(homeOdds)
-    // });
+    results[0].push(convertOdds(visitorOdds));
+    results[1].push(convertOdds(homeOdds));
   }
+
+  //remove the Opening Line
+  results[0].shift()
+  results[1].shift()
 
   console.log('array of odds: ', results);
   return results;
 }
 
-// scrape();
+// scrape().catch((error) => {console.log(error.message)});
